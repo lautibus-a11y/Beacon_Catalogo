@@ -396,83 +396,127 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="pt-32 pb-24 px-4 sm:px-8 max-w-7xl mx-auto z-10 relative">
-        <motion.section variants={fadeInUp} initial="initial" animate="animate" className="mb-12 sm:mb-20">
-          <div className="flex flex-col lg:flex-row gap-4 sm:gap-8 items-center justify-between bg-white/5 border border-white/5 p-4 sm:p-6 rounded-[2rem] sm:rounded-[3rem] backdrop-blur-2xl shadow-2xl">
+      <main className="pt-24 pb-20 px-3 sm:px-8 max-w-7xl mx-auto z-10 relative">
+        <motion.section variants={fadeInUp} initial="initial" animate="animate" className="mb-8 sm:mb-20">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-8 items-center justify-between bg-white/5 border border-white/5 p-3 sm:p-6 rounded-3xl sm:rounded-[3rem] backdrop-blur-2xl shadow-2xl relative z-50">
             <div className="relative w-full lg:w-1/3 group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#FFD700] transition-colors" size={18} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#FFD700] transition-colors" size={16} />
               <input
-                type="text" placeholder="BUSCAR EN EL CATÁLOGO..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 outline-none focus:border-[#FFD700]/30 transition-all font-bold tracking-widest text-[10px] uppercase placeholder:text-gray-700"
+                type="text"
+                placeholder="BUSCAR..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-black/40 border border-white/5 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-[#FFD700]/30 transition-all font-bold tracking-widest text-[16px] sm:text-[10px] uppercase placeholder:text-gray-700 search-input-no-zoom"
               />
+              <AnimatePresence>
+                {searchTerm && filteredProducts.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-[50vh] overflow-y-auto no-scrollbar z-[100]"
+                  >
+                    {filteredProducts.slice(0, 5).map(p => (
+                      <div
+                        key={p.id}
+                        onClick={() => { play('click'); handleOpenProduct(p); setSearchTerm(''); }}
+                        className="flex items-center gap-3 p-3 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/5 last:border-0"
+                      >
+                        <div className="w-10 h-10 bg-white/5 rounded-lg overflow-hidden flex-shrink-0">
+                          <img src={p.images[0]?.url} alt={p.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <h4 className="text-white font-bold text-xs uppercase truncate">{p.name}</h4>
+                          <span className="text-[#FFD700] text-[10px] font-mono font-bold">${p.price.toLocaleString()}</span>
+                        </div>
+                        <ChevronRight size={14} className="text-gray-600" />
+                      </div>
+                    ))}
+                    {filteredProducts.length > 5 && (
+                      <div className="p-2 text-center text-[9px] uppercase text-gray-500 font-black tracking-widest border-t border-white/5">
+                        Ver {filteredProducts.length - 5} más...
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div className="flex gap-2 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 no-scrollbar items-center px-1">
-              <button onClick={() => { play('click'); setSelectedCategory(null); }} className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${!selectedCategory ? 'bg-[#FFD700] text-black border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.2)]' : 'bg-white/5 text-gray-500 border-white/10 hover:text-white hover:bg-white/10'}`}>TODOS</button>
+            <div className="flex gap-2 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0 no-scrollbar items-center px-1">
+              <button
+                onClick={() => { play('click'); setSelectedCategory(null); }}
+                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-xl text-[10px] sm:text-[9px] font-black uppercase tracking-widest transition-all border whitespace-nowrap ${!selectedCategory ? 'bg-[#FFD700] text-black border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)] text-shadow-glow' : 'bg-white/5 text-gray-500 border-white/10 hover:text-white hover:bg-white/10'}`}
+              >
+                TODOS
+              </button>
               {categories.map(c => (
-                <button key={c.id} onClick={() => { play('click'); setSelectedCategory(c.id); }} className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border whitespace-nowrap ${selectedCategory === c.id ? 'bg-[#FFD700] text-black border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.2)]' : 'bg-white/5 text-gray-500 border-white/10 hover:text-white hover:bg-white/10'}`}>{c.name}</button>
+                <button
+                  key={c.id}
+                  onClick={() => { play('click'); setSelectedCategory(c.id); }}
+                  className={`px-4 py-2 sm:px-6 sm:py-3 rounded-xl text-[10px] sm:text-[9px] font-black uppercase tracking-widest transition-all border whitespace-nowrap ${selectedCategory === c.id ? 'bg-[#FFD700] text-black border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.4)] text-shadow-glow' : 'bg-white/5 text-gray-500 border-white/10 hover:text-white hover:bg-white/10 hover:text-shadow-glow-white'}`}
+                >
+                  {c.name}
+                </button>
               ))}
             </div>
           </div>
         </motion.section>
 
         {!selectedCategory && !searchTerm && featuredProduct && (
-          <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20 sm:mb-32 group">
-            <div className="relative h-[500px] sm:h-[650px] w-full overflow-hidden rounded-[3rem] sm:rounded-[4rem] border border-white/5 shadow-2xl">
+          <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 sm:mb-32 group">
+            <div className="relative h-[350px] sm:h-[650px] w-full overflow-hidden rounded-[2rem] sm:rounded-[4rem] border border-white/5 shadow-2xl">
               <ImageCarousel images={featuredProduct.images} />
               <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/95 via-black/30 to-transparent pointer-events-none z-10" />
-              <div className="absolute inset-0 p-8 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
-                <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-[#FFD700] font-mono text-[10px] sm:text-xs tracking-[0.6em] mb-4 sm:mb-8 flex items-center gap-4 uppercase font-black">
-                  <div className="w-12 h-px bg-[#FFD700]"></div> NEW DYNAMICS
+              <div className="absolute inset-0 p-6 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
+                <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-[#FFD700] font-mono text-[9px] sm:text-xs tracking-[0.6em] mb-2 sm:mb-8 flex items-center gap-4 uppercase font-black">
+                  <div className="w-8 sm:w-12 h-px bg-[#FFD700]"></div> NEW
                 </motion.span>
-                <h2 className="text-5xl sm:text-7xl md:text-8xl font-black mb-6 sm:mb-10 leading-none tracking-tighter uppercase">{featuredProduct.name}</h2>
+                <h2 className="text-3xl sm:text-7xl md:text-8xl font-black mb-4 sm:mb-10 leading-none tracking-tighter uppercase">{featuredProduct.name}</h2>
                 <p className="hidden sm:block text-gray-400 text-xl mb-12 leading-relaxed font-medium line-clamp-3 max-w-xl">{featuredProduct.description}</p>
                 <motion.button
                   whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                   onClick={() => handleOpenProduct(featuredProduct)}
-                  className="w-full sm:w-fit pointer-events-auto bg-white text-black font-black px-12 py-5 rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-[11px] uppercase"
+                  className="w-full sm:w-fit pointer-events-auto bg-white text-black font-black px-6 sm:px-12 py-3 sm:py-5 rounded-xl sm:rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-[10px] sm:text-[11px] uppercase"
                 >
-                  EXPLORAR EDICIÓN <ArrowRight className="inline ml-2" size={16} />
+                  EXPLORAR <ArrowRight className="inline ml-2" size={14} />
                 </motion.button>
               </div>
             </div>
           </motion.section>
         )}
 
-        <div className="mb-12 flex items-center justify-between px-4">
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tighter flex items-center gap-4 uppercase">
-            <LayoutGrid className="text-[#FFD700]" size={32} /> Catálogo <span className="text-[#FFD700]">Pro</span>
+        <div className="mb-6 sm:mb-12 flex items-center justify-between px-2 sm:px-4">
+          <h2 className="text-xl sm:text-5xl font-black tracking-tighter flex items-center gap-2 sm:gap-4 uppercase">
+            <LayoutGrid className="text-[#FFD700]" size={20} /> Catálogo <span className="text-[#FFD700] text-shadow-glow">Pro</span>
           </h2>
-          <div className="text-[10px] font-black tracking-[0.4em] text-gray-700 uppercase">{filteredProducts.length} SKU</div>
+          <div className="text-[9px] sm:text-[10px] font-black tracking-[0.4em] text-gray-700 uppercase">{filteredProducts.length} SKU</div>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8">
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : (
-          <motion.div variants={staggerChildren} initial="initial" animate="animate" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-12">
+          <motion.div variants={staggerChildren} initial="initial" animate="animate" className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-12">
             <AnimatePresence mode="popLayout">
               {filteredProducts.map(p => (
-                <motion.div key={p.id} variants={fadeInUp} layout className="bg-white/5 border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative">
+                <motion.div key={p.id} variants={fadeInUp} layout className="bg-white/5 border border-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative">
                   <div className="relative cursor-pointer overflow-hidden aspect-[4/5] bg-black" onClick={() => handleOpenProduct(p)}>
                     <ImageCarousel images={p.images} showDots={false} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end p-8 z-10">
-                      <span className="text-white font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">Ver Detalles <ArrowRight size={14} /></span>
-                    </div>
                   </div>
-                  <div className="p-8 flex flex-col flex-grow">
-                    <div className="flex-grow mb-6">
-                      <h3 className="font-black text-2xl mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-1 uppercase tracking-tight">{p.name}</h3>
-                      <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium">{p.description}</p>
+                  <div className="p-4 sm:p-8 flex flex-col flex-grow">
+                    <div className="flex-grow mb-3 sm:mb-6">
+                      <h3 className="font-black text-sm sm:text-2xl mb-1 sm:mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-1 uppercase tracking-tight">{p.name}</h3>
+                      <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium hidden sm:block">{p.description}</p>
                     </div>
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="text-3xl font-black text-white tracking-tighter">${p.price.toLocaleString()}</span>
+                    <div className="flex items-center justify-between mt-auto gap-2">
+                      <span className="text-lg sm:text-3xl font-black text-white tracking-tighter text-shadow-glow-sm">${p.price.toLocaleString()}</span>
                       <motion.button
                         whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                         onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
-                        className="bg-white text-black w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl"
+                        className="bg-white text-black w-8 h-8 sm:w-14 sm:h-14 rounded-lg sm:rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl"
                       >
-                        <Plus size={28} />
+                        <Plus size={16} className="sm:hidden" />
+                        <Plus size={28} className="hidden sm:block" />
                       </motion.button>
                     </div>
                   </div>
@@ -492,7 +536,7 @@ export default function App() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed top-0 right-0 bottom-0 w-full sm:max-w-xl bg-[#080808] z-[1001] border-l border-white/5 flex flex-col shadow-2xl"
             >
-              <div className="p-10 border-b border-white/5 flex items-center justify-between">
+              <div className="p-8 sm:p-10 border-b border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-5">
                   <div className="w-12 h-12 bg-[#FFD700]/10 rounded-2xl flex items-center justify-center text-[#FFD700] border border-[#FFD700]/20"><ShoppingBag size={24} /></div>
                   <h2 className="text-3xl font-black uppercase tracking-tighter">Bolsa</h2>
