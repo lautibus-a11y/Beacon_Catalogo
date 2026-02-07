@@ -384,9 +384,16 @@ export default function App() {
   const handleCheckout = () => {
     play('success');
     const number = "1172023171";
-    let message = "🔱 BEACON PREMIUM ORDER\n--------------------------\n";
-    cart.forEach(item => message += `• ${item.name} [x${item.quantity}] - $${(item.price * item.quantity).toLocaleString()}\n`);
-    message += `\n--------------------------\nTOTAL: $${total.toLocaleString()}\n\nPor favor confirmar pedido.`;
+    let message = "¡Hola! 👋\n";
+    message += "Quisiera confirmar mi pedido:\n\n";
+
+    cart.forEach(item => {
+      message += `• ${item.name} [x${item.quantity}] - $${(item.price * item.quantity).toLocaleString()}\n`;
+    });
+
+    message += `\n*Monto total: $${total.toLocaleString()}*\n\n`;
+    message += "Muchas gracias 😊";
+
     window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -617,57 +624,87 @@ export default function App() {
       <AnimatePresence>
         {showCart && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCart(false)} className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[1000]" />
             <motion.div
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-full sm:max-w-xl bg-[#080808] z-[1001] border-l border-white/5 flex flex-col shadow-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCart(false)}
+              className="fixed inset-0 bg-black/90 backdrop-blur-md z-[1000]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-full sm:max-w-md bg-[#080808] z-[1001] border-l border-white/5 flex flex-col shadow-2xl"
             >
-              <div className="p-8 sm:p-10 border-b border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 bg-[#FFD700]/10 rounded-2xl flex items-center justify-center text-[#FFD700] border border-[#FFD700]/20"><ShoppingBag size={24} /></div>
-                  <h2 className="text-3xl font-black uppercase tracking-tighter">Bolsa</h2>
+              <div className="p-6 sm:p-8 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-[#FFD700]/10 rounded-xl flex items-center justify-center text-[#FFD700] border border-[#FFD700]/20">
+                    <ShoppingBag size={20} />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight">Mi Pedido</h2>
                 </div>
-                <button onClick={() => { play('click'); setShowCart(false); }} className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all"><X size={28} /></button>
+                <button
+                  onClick={() => { play('click'); setShowCart(false); }}
+                  className="p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all"
+                >
+                  <X size={24} />
+                </button>
               </div>
-              <div className="flex-grow overflow-y-auto p-10 space-y-10 no-scrollbar">
+
+              <div className="flex-grow overflow-y-auto p-6 sm:p-8 space-y-6 no-scrollbar">
                 {cart.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-32 opacity-20">
-                    <ShoppingBag size={80} className="mb-8" />
-                    <p className="text-sm font-black uppercase tracking-[0.6em]">VACÍO</p>
+                  <div className="flex flex-col items-center justify-center py-20 opacity-20">
+                    <ShoppingBag size={60} className="mb-6" />
+                    <p className="text-xs font-black uppercase tracking-[0.4em]">El carrito está vacío</p>
                   </div>
                 ) :
                   cart.map((item) => (
-                    <motion.div layout key={item.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} className="flex gap-6 group">
-                      <div className="w-28 h-28 rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 bg-black aspect-square">
-                        <img src={item.images[0]?.url} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                    <motion.div
+                      layout
+                      key={item.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="flex gap-4 group"
+                    >
+                      <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/5 flex-shrink-0 bg-black aspect-square">
+                        <img src={item.images[0]?.url} className="w-full h-full object-cover" />
                       </div>
-                      <div className="flex-grow flex flex-col justify-center">
-                        <h4 className="font-black text-xl mb-1 tracking-tight group-hover:text-[#FFD700] transition-colors uppercase line-clamp-1">{item.name}</h4>
-                        <div className="flex items-center gap-4 mb-4 bg-white/5 w-fit px-4 py-1.5 rounded-full border border-white/5">
-                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? { ...it, quantity: Math.max(1, it.quantity - 1) } : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Minus size={16} /></button>
-                          <span className="font-mono font-bold text-sm w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? { ...it, quantity: it.quantity + 1 } : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Plus size={16} /></button>
+                      <div className="flex-grow flex flex-col justify-center min-w-0">
+                        <h4 className="font-bold text-sm mb-1 tracking-tight truncate uppercase">{item.name}</h4>
+                        <div className="flex items-center gap-3 mb-2 bg-white/5 w-fit px-3 py-1 rounded-full border border-white/5">
+                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? { ...it, quantity: Math.max(1, it.quantity - 1) } : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Minus size={12} /></button>
+                          <span className="font-mono font-bold text-xs w-4 text-center">{item.quantity}</span>
+                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? { ...it, quantity: it.quantity + 1 } : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Plus size={12} /></button>
                         </div>
-                        <p className="font-black text-[#FFD700] text-2xl tracking-tighter">${(item.price * item.quantity).toLocaleString()}</p>
+                        <p className="font-black text-[#FFD700] text-lg tracking-tight">${(item.price * item.quantity).toLocaleString()}</p>
                       </div>
-                      <button onClick={() => handleRemoveFromCart(item.id)} className="text-gray-600 hover:text-red-500 self-start p-3 bg-white/5 rounded-2xl transition-all border border-white/5"><Trash2 size={22} /></button>
+                      <button
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="text-gray-600 hover:text-red-500 self-center p-2 bg-white/5 rounded-lg transition-all border border-white/5"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </motion.div>
                   ))
                 }
               </div>
+
               {cart.length > 0 && (
-                <div className="p-10 border-t border-white/5 bg-black/80 backdrop-blur-3xl">
-                  <div className="flex justify-between items-end mb-10">
-                    <span className="text-[11px] font-black text-gray-600 uppercase tracking-widest">SUBTOTAL</span>
-                    <span className="text-5xl font-black text-white tracking-tighter">${total.toLocaleString()}</span>
+                <div className="p-6 sm:p-8 border-t border-white/5 bg-black/40 backdrop-blur-xl">
+                  <div className="flex justify-between items-end mb-6">
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total Estimado</span>
+                    <span className="text-3xl sm:text-4xl font-black text-white tracking-tighter">${total.toLocaleString()}</span>
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleCheckout}
-                    className="w-full bg-[#FFD700] text-black font-black py-6 rounded-3xl flex items-center justify-center gap-4 hover:bg-[#DAA520] shadow-[0_20px_50px_rgba(255,215,0,0.15)] text-xl uppercase tracking-widest"
+                    className="w-full bg-[#FFD700] text-black font-black py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#DAA520] shadow-xl text-lg uppercase tracking-widest"
                   >
-                    REALIZAR PEDIDO <ArrowRight size={28} />
+                    CONFIRMAR PEDIDO <ArrowRight size={20} />
                   </motion.button>
                 </div>
               )}
