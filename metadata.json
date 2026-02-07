@@ -1,0 +1,8 @@
+
+{
+  "name": "Beacon Premium Store",
+  "description": "Catálogo premium Beacon con carrito de compras, checkout por WhatsApp y estética de alta tecnología.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
