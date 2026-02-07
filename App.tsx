@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShoppingBag, Search, X, Plus, Minus, Trash2, 
-  Settings, ChevronRight, LayoutGrid, Star, 
-  ArrowRight, ChevronLeft, LogOut, Package, 
-  Layers, Upload, Loader2, Menu, Image as ImageIcon, Edit3, 
+import {
+  ShoppingBag, Search, X, Plus, Minus, Trash2,
+  Settings, ChevronRight, LayoutGrid, Star,
+  ArrowRight, ChevronLeft, LogOut, Package,
+  Layers, Upload, Loader2, Menu, Image as ImageIcon, Edit3,
   Volume2, VolumeX, ChevronUp, ChevronDown, CheckCircle2
 } from 'lucide-react';
 import { DB } from './db';
@@ -28,7 +28,7 @@ const useSoundEngine = () => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      switch(type) {
+      switch (type) {
         case 'click':
           osc.type = 'sine';
           osc.frequency.setValueAtTime(600, ctx.currentTime);
@@ -71,7 +71,7 @@ const useSoundEngine = () => {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.3);
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const toggle = () => {
@@ -104,7 +104,7 @@ const LighthouseIcon = ({ size = 24, className = "" }: { size?: number, classNam
         <stop offset="100%" stopColor="#B8860B" />
       </linearGradient>
       <filter id="logoGlow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="3" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        <feGaussianBlur stdDeviation="3" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" />
       </filter>
       <radialGradient id="beamRadial" cx="0%" cy="50%" r="100%">
         <stop offset="0%" stopColor="#FFD700" stopOpacity="0.8" /><stop offset="100%" stopColor="#FFD700" stopOpacity="0" />
@@ -151,10 +151,10 @@ const ParticleBackground = () => (
           left: Math.random() * 100 + '%',
           top: Math.random() * 100 + '%',
         }}
-        animate={{ 
-          y: [0, -200], 
+        animate={{
+          y: [0, -200],
           x: [0, (Math.random() - 0.5) * 100],
-          opacity: [0, 0.5, 0] 
+          opacity: [0, 0.5, 0]
         }}
         transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "linear" }}
       />
@@ -178,7 +178,7 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true }: { images:
   return (
     <div className={`relative ${height} w-full overflow-hidden group touch-pan-y`}>
       <AnimatePresence mode="wait">
-        <motion.img 
+        <motion.img
           key={sortedImages[index].id}
           src={sortedImages[index].url}
           initial={{ opacity: 0, x: 50, scale: 1.1 }}
@@ -189,7 +189,7 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true }: { images:
           loading="lazy"
         />
       </AnimatePresence>
-      
+
       {sortedImages.length > 1 && (
         <>
           <button onClick={(e) => { e.stopPropagation(); setIndex(prev => (prev - 1 + sortedImages.length) % sortedImages.length); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 backdrop-blur-md p-3 rounded-full opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-black/90 active:scale-90 hidden sm:block z-20"><ChevronLeft size={20} className="text-[#FFD700]" /></button>
@@ -209,27 +209,27 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true }: { images:
 const ProductDetailModal = ({ product, onClose, onAddToCart }: { product: Product, onClose: () => void, onAddToCart: (p: Product) => void }) => {
   const { play } = useSoundEngine();
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6"
     >
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }} 
-        onClick={onClose} 
-        className="absolute inset-0 bg-black/95 backdrop-blur-xl" 
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/95 backdrop-blur-xl"
       />
-      <motion.div 
-        initial={{ scale: 0.9, opacity: 0, y: 40 }} 
-        animate={{ scale: 1, opacity: 1, y: 0 }} 
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 40 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 40 }}
         className="bg-[#0a0a0a] border border-white/10 rounded-[3rem] w-full max-w-5xl overflow-hidden relative shadow-2xl flex flex-col lg:flex-row max-h-[90vh]"
       >
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="absolute top-8 right-8 z-50 p-4 bg-black/60 backdrop-blur-md rounded-2xl text-white hover:text-[#FFD700] transition-colors border border-white/5"
         >
           <X size={24} />
@@ -252,10 +252,10 @@ const ProductDetailModal = ({ product, onClose, onAddToCart }: { product: Produc
               <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Price Value</span>
               <span className="text-5xl font-black text-white tracking-tighter">${product.price.toLocaleString()}</span>
             </div>
-            <motion.button 
-              whileHover={{ scale: 1.05 }} 
+            <motion.button
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => { onAddToCart(product); onClose(); }} 
+              onClick={() => { onAddToCart(product); onClose(); }}
               className="bg-white text-black font-black px-12 py-6 rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-xs uppercase flex items-center justify-center gap-3"
             >
               ADQUIRIR AHORA <ShoppingBag size={20} />
@@ -343,7 +343,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-[#050505] text-white selection:bg-[#FFD700] selection:text-black overflow-x-hidden">
       <ParticleBackground />
-      
+
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 h-20 sm:h-24 glass z-[500] border-b border-white/5 px-4 sm:px-10 flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-4 cursor-pointer group" onClick={() => { play('click'); window.location.href = '/'; }}>
@@ -363,15 +363,15 @@ export default function App() {
           <button onClick={() => { play('click'); setView(session ? 'admin' : 'login'); }} className="p-3 text-gray-400 hover:text-[#FFD700] transition-colors rounded-xl hover:bg-white/5">
             <Settings size={22} />
           </button>
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-            onClick={() => { play('click'); setShowCart(true); }} 
+            onClick={() => { play('click'); setShowCart(true); }}
             className="relative p-3 sm:p-4 bg-[#FFD700]/10 rounded-2xl border border-[#FFD700]/20 group hover:border-[#FFD700]/50 transition-all shadow-xl"
           >
             <ShoppingBag size={22} className="text-[#FFD700]" />
             <AnimatePresence>
               {cartCount > 0 && (
-                <motion.span 
+                <motion.span
                   initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
                   className="absolute -top-1 -right-1 bg-[#FFD700] text-black text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-lg border-2 border-black"
                 >
@@ -388,7 +388,7 @@ export default function App() {
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-8 items-center justify-between bg-white/5 border border-white/5 p-4 sm:p-6 rounded-[2rem] sm:rounded-[3rem] backdrop-blur-2xl shadow-2xl">
             <div className="relative w-full lg:w-1/3 group">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#FFD700] transition-colors" size={18} />
-              <input 
+              <input
                 type="text" placeholder="BUSCAR EN EL CATÁLOGO..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 outline-none focus:border-[#FFD700]/30 transition-all font-bold tracking-widest text-[10px] uppercase placeholder:text-gray-700"
               />
@@ -405,22 +405,22 @@ export default function App() {
         {!selectedCategory && !searchTerm && featuredProduct && (
           <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20 sm:mb-32 group">
             <div className="relative h-[500px] sm:h-[650px] w-full overflow-hidden rounded-[3rem] sm:rounded-[4rem] border border-white/5 shadow-2xl">
-               <ImageCarousel images={featuredProduct.images} />
-               <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/95 via-black/30 to-transparent pointer-events-none z-10" />
-               <div className="absolute inset-0 p-8 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
-                 <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-[#FFD700] font-mono text-[10px] sm:text-xs tracking-[0.6em] mb-4 sm:mb-8 flex items-center gap-4 uppercase font-black">
-                   <div className="w-12 h-px bg-[#FFD700]"></div> NEW DYNAMICS
-                 </motion.span>
-                 <h2 className="text-5xl sm:text-7xl md:text-8xl font-black mb-6 sm:mb-10 leading-none tracking-tighter uppercase">{featuredProduct.name}</h2>
-                 <p className="hidden sm:block text-gray-400 text-xl mb-12 leading-relaxed font-medium line-clamp-3 max-w-xl">{featuredProduct.description}</p>
-                 <motion.button 
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => handleOpenProduct(featuredProduct)} 
-                    className="w-full sm:w-fit pointer-events-auto bg-white text-black font-black px-12 py-5 rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-[11px] uppercase"
-                  >
-                    EXPLORAR EDICIÓN <ArrowRight className="inline ml-2" size={16} />
-                  </motion.button>
-               </div>
+              <ImageCarousel images={featuredProduct.images} />
+              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/95 via-black/30 to-transparent pointer-events-none z-10" />
+              <div className="absolute inset-0 p-8 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
+                <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-[#FFD700] font-mono text-[10px] sm:text-xs tracking-[0.6em] mb-4 sm:mb-8 flex items-center gap-4 uppercase font-black">
+                  <div className="w-12 h-px bg-[#FFD700]"></div> NEW DYNAMICS
+                </motion.span>
+                <h2 className="text-5xl sm:text-7xl md:text-8xl font-black mb-6 sm:mb-10 leading-none tracking-tighter uppercase">{featuredProduct.name}</h2>
+                <p className="hidden sm:block text-gray-400 text-xl mb-12 leading-relaxed font-medium line-clamp-3 max-w-xl">{featuredProduct.description}</p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  onClick={() => handleOpenProduct(featuredProduct)}
+                  className="w-full sm:w-fit pointer-events-auto bg-white text-black font-black px-12 py-5 rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-[11px] uppercase"
+                >
+                  EXPLORAR EDICIÓN <ArrowRight className="inline ml-2" size={16} />
+                </motion.button>
+              </div>
             </div>
           </motion.section>
         )}
@@ -444,7 +444,7 @@ export default function App() {
                   <div className="relative cursor-pointer overflow-hidden aspect-[4/5] bg-black" onClick={() => handleOpenProduct(p)}>
                     <ImageCarousel images={p.images} showDots={false} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end p-8 z-10">
-                      <span className="text-white font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">Ver Detalles <ArrowRight size={14}/></span>
+                      <span className="text-white font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">Ver Detalles <ArrowRight size={14} /></span>
                     </div>
                   </div>
                   <div className="p-8 flex flex-col flex-grow">
@@ -454,9 +454,9 @@ export default function App() {
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <span className="text-3xl font-black text-white tracking-tighter">${p.price.toLocaleString()}</span>
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                        onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }} 
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
                         className="bg-white text-black w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl"
                       >
                         <Plus size={28} />
@@ -474,8 +474,8 @@ export default function App() {
         {showCart && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCart(false)} className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[1000]" />
-            <motion.div 
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
+            <motion.div
+              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed top-0 right-0 bottom-0 w-full sm:max-w-xl bg-[#080808] z-[1001] border-l border-white/5 flex flex-col shadow-2xl"
             >
@@ -492,7 +492,7 @@ export default function App() {
                     <ShoppingBag size={80} className="mb-8" />
                     <p className="text-sm font-black uppercase tracking-[0.6em]">VACÍO</p>
                   </div>
-                ) : 
+                ) :
                   cart.map((item) => (
                     <motion.div layout key={item.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} className="flex gap-6 group">
                       <div className="w-28 h-28 rounded-[1.5rem] overflow-hidden border border-white/5 flex-shrink-0 bg-black aspect-square">
@@ -501,9 +501,9 @@ export default function App() {
                       <div className="flex-grow flex flex-col justify-center">
                         <h4 className="font-black text-xl mb-1 tracking-tight group-hover:text-[#FFD700] transition-colors uppercase line-clamp-1">{item.name}</h4>
                         <div className="flex items-center gap-4 mb-4 bg-white/5 w-fit px-4 py-1.5 rounded-full border border-white/5">
-                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? {...it, quantity: Math.max(1, it.quantity-1)} : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Minus size={16}/></button>
+                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? { ...it, quantity: Math.max(1, it.quantity - 1) } : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Minus size={16} /></button>
                           <span className="font-mono font-bold text-sm w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? {...it, quantity: it.quantity+1} : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Plus size={16}/></button>
+                          <button onClick={() => { play('click'); setCart(prev => prev.map(it => it.id === item.id ? { ...it, quantity: it.quantity + 1 } : it)) }} className="text-gray-500 hover:text-[#FFD700]"><Plus size={16} /></button>
                         </div>
                         <p className="font-black text-[#FFD700] text-2xl tracking-tighter">${(item.price * item.quantity).toLocaleString()}</p>
                       </div>
@@ -518,9 +518,9 @@ export default function App() {
                     <span className="text-[11px] font-black text-gray-600 uppercase tracking-widest">SUBTOTAL</span>
                     <span className="text-5xl font-black text-white tracking-tighter">${total.toLocaleString()}</span>
                   </div>
-                  <motion.button 
+                  <motion.button
                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                    onClick={handleCheckout} 
+                    onClick={handleCheckout}
                     className="w-full bg-[#FFD700] text-black font-black py-6 rounded-3xl flex items-center justify-center gap-4 hover:bg-[#DAA520] shadow-[0_20px_50px_rgba(255,215,0,0.15)] text-xl uppercase tracking-widest"
                   >
                     REALIZAR PEDIDO <ArrowRight size={28} />
@@ -572,12 +572,27 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
   const handleSaveProduct = async (e: any) => {
     e.preventDefault();
     if (!editingProduct) return;
+
+    if (!editingProduct.categoryId) {
+      alert('El producto debe tener una categoría válida.');
+      return;
+    }
+
     try {
       await DB.saveProduct(editingProduct);
       setEditingProduct(null);
       onUpdate();
       play('success');
-    } catch (e) { alert(e); }
+      onUpdate();
+      play('success');
+    } catch (e: any) {
+      console.error('Error saving product:', e);
+      if (e.message?.includes('row-level security policy')) {
+        alert('Error de permisos (RLS): No tienes permiso para guardar productos. Verifica las políticas en Supabase.');
+      } else {
+        alert(e.message || 'Error al guardar el producto');
+      }
+    }
   };
 
   const handleSaveCategory = async (e: any) => {
@@ -588,7 +603,16 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
       setEditingCategory(null);
       onUpdate();
       play('success');
-    } catch (e) { alert(e); }
+      onUpdate();
+      play('success');
+    } catch (e: any) {
+      console.error('Error saving category:', e);
+      if (e.message?.includes('row-level security policy')) {
+        alert('Error de permisos (RLS): No tienes permiso para guardar categorías. Verifica las políticas en Supabase.');
+      } else {
+        alert(e.message || 'Error al guardar la categoría');
+      }
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -596,19 +620,27 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
     if (!file || !editingProduct) return;
     setUploading(true);
     try {
-      const fileName = `${Date.now()}_${file.name}`;
+      const sanitizedName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.-]/g, "_");
+      const fileName = `${Date.now()}_${sanitizedName}`;
       const { data, error } = await supabase.storage.from('products').upload(`images/${fileName}`, file);
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(data.path);
-      
+
       const newImages = [...editingProduct.images];
       newImages.push({
         id: `img_temp_${Date.now()}`,
         url: publicUrl,
         order: newImages.length
       });
-      setEditingProduct({...editingProduct, images: newImages});
-    } catch (e) { alert(e); }
+      setEditingProduct({ ...editingProduct, images: newImages });
+    } catch (e: any) {
+      console.error('Error uploading image:', e);
+      if (e.message?.includes('row-level security policy')) {
+        alert('Error de permisos (RLS): No tienes permiso para subir imágenes. Verifica las políticas de Storage "products" en Supabase.');
+      } else {
+        alert(e.message || 'Error al subir la imagen');
+      }
+    }
     setUploading(false);
   };
 
@@ -618,7 +650,7 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= newImages.length) return;
     [newImages[index], newImages[newIndex]] = [newImages[newIndex], newImages[index]];
-    setEditingProduct({...editingProduct, images: newImages});
+    setEditingProduct({ ...editingProduct, images: newImages });
   };
 
   return (
@@ -648,14 +680,18 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">
             {activeTab === 'products' ? 'Inventario' : 'Categorías'}
           </h1>
-          <button 
+          <button
             onClick={() => {
-              if(activeTab === 'products') {
+              if (activeTab === 'products') {
+                if (categories.length === 0) {
+                  alert('Debes crear al menos una categoría antes de agregar productos.');
+                  return;
+                }
                 setEditingProduct({ id: `p_temp_${Date.now()}`, name: '', price: 0, description: '', categoryId: categories[0]?.id || '', images: [], isFeatured: false, createdAt: Date.now() });
               } else {
                 setEditingCategory({ id: `c_temp_${Date.now()}`, name: '' });
               }
-            }} 
+            }}
             className="w-full sm:w-auto bg-white text-black font-black px-10 py-4 rounded-2xl hover:bg-[#FFD700] transition-all shadow-xl uppercase text-xs tracking-widest"
           >
             + NUEVO REGISTRO
@@ -684,7 +720,23 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
                     <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
                       <td className="p-8"><div className="flex items-center gap-5"><div className="w-12 h-12 bg-black rounded-xl overflow-hidden border border-white/10 aspect-square"><img src={p.images[0]?.url} className="w-full h-full object-cover" /></div><span className="font-bold text-lg uppercase line-clamp-1">{p.name}</span>{p.isFeatured && <Star size={14} className="text-[#FFD700] fill-[#FFD700]" />}</div></td>
                       <td className="p-8 font-black text-xl text-[#FFD700] hidden sm:table-cell">${p.price.toLocaleString()}</td>
-                      <td className="p-8"><div className="flex gap-3"><button onClick={() => setEditingProduct(p)} className="p-3 bg-white/5 hover:bg-[#FFD700] hover:text-black rounded-xl transition-all"><Edit3 size={18} /></button><button onClick={async () => { if(confirm('Eliminar producto?')){ await DB.deleteProduct(p.id); onUpdate(); play('remove'); } }} className="p-3 bg-white/5 hover:bg-red-500/10 text-red-500 rounded-xl transition-all"><Trash2 size={18} /></button></div></td>
+                      <td className="p-8">
+                        <div className="flex gap-3">
+                          <button onClick={() => setEditingProduct(p)} className="p-3 bg-white/5 hover:bg-[#FFD700] hover:text-black rounded-xl transition-all"><Edit3 size={18} /></button>
+                          <button onClick={async () => {
+                            if (confirm('Eliminar producto?')) {
+                              try {
+                                await DB.deleteProduct(p.id);
+                                onUpdate();
+                                play('remove');
+                              } catch (e: any) {
+                                console.error(e);
+                                alert(e.message || 'Error al eliminar');
+                              }
+                            }
+                          }} className="p-3 bg-white/5 hover:bg-red-500/10 text-red-500 rounded-xl transition-all"><Trash2 size={18} /></button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -706,7 +758,23 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
                 {categories.map((c: Category) => (
                   <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="p-8"><span className="font-bold text-lg uppercase">{c.name}</span></td>
-                    <td className="p-8"><div className="flex gap-3"><button onClick={() => setEditingCategory(c)} className="p-3 bg-white/5 hover:bg-[#FFD700] hover:text-black rounded-xl transition-all"><Edit3 size={18} /></button><button onClick={async () => { if(confirm('Eliminar categoría?')){ await DB.deleteCategory(c.id); onUpdate(); play('remove'); } }} className="p-3 bg-white/5 hover:bg-red-500/10 text-red-500 rounded-xl transition-all"><Trash2 size={18} /></button></div></td>
+                    <td className="p-8">
+                      <div className="flex gap-3">
+                        <button onClick={() => setEditingCategory(c)} className="p-3 bg-white/5 hover:bg-[#FFD700] hover:text-black rounded-xl transition-all"><Edit3 size={18} /></button>
+                        <button onClick={async () => {
+                          if (confirm('Eliminar categoría?')) {
+                            try {
+                              await DB.deleteCategory(c.id);
+                              onUpdate();
+                              play('remove');
+                            } catch (e: any) {
+                              console.error(e);
+                              alert(e.message || 'Error al eliminar');
+                            }
+                          }
+                        }} className="p-3 bg-white/5 hover:bg-red-500/10 text-red-500 rounded-xl transition-all"><Trash2 size={18} /></button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -718,72 +786,72 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
       {/* Product Modal Editor */}
       <AnimatePresence>
         {editingProduct && (
-           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 sm:p-6">
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingProduct(null)} className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
-             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-[#0d0d0d] border border-white/10 p-6 sm:p-10 rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl no-scrollbar">
-                <h2 className="text-3xl font-black mb-10 uppercase flex items-center gap-4"><Edit3 size={32} className="text-[#FFD700]" /> Editor de Producto</h2>
-                <form onSubmit={handleSaveProduct} className="space-y-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div className="space-y-8">
-                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Nombre del Gadget</label><input value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold uppercase" required /></div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Precio ($)</label><input type="number" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: Number(e.target.value)})} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold" required /></div>
-                        <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Categoría</label>
-                          <select value={editingProduct.categoryId} onChange={e => setEditingProduct({...editingProduct, categoryId: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold appearance-none uppercase">
-                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 sm:p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingProduct(null)} className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-[#0d0d0d] border border-white/10 p-6 sm:p-10 rounded-[3rem] w-full max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl no-scrollbar">
+              <h2 className="text-3xl font-black mb-10 uppercase flex items-center gap-4"><Edit3 size={32} className="text-[#FFD700]" /> Editor de Producto</h2>
+              <form onSubmit={handleSaveProduct} className="space-y-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                  <div className="space-y-8">
+                    <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Nombre del Gadget</label><input value={editingProduct.name} onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold uppercase" required /></div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Precio ($)</label><input type="number" value={editingProduct.price} onChange={e => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold" required /></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Categoría</label>
+                        <select value={editingProduct.categoryId} onChange={e => setEditingProduct({ ...editingProduct, categoryId: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold appearance-none uppercase">
+                          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Descripción Técnica</label><textarea value={editingProduct.description} onChange={e => setEditingProduct({ ...editingProduct, description: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 h-44 outline-none resize-none" required /></div>
+                    <div className="flex items-center gap-4 bg-white/5 p-6 rounded-2xl border border-white/5">
+                      <input type="checkbox" checked={editingProduct.isFeatured} onChange={e => setEditingProduct({ ...editingProduct, isFeatured: e.target.checked })} className="w-6 h-6 accent-[#FFD700] cursor-pointer" id="isFeatured" />
+                      <label htmlFor="isFeatured" className="font-bold text-gray-300 uppercase text-xs tracking-widest cursor-pointer">Destacar en Portada</label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Galería de Imágenes (Arrastra para reordenar próximamente)</label>
+                      <label className={`cursor-pointer bg-[#FFD700] text-black p-3 rounded-xl hover:bg-white transition-all ${uploading ? 'opacity-50' : ''}`}>
+                        <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" disabled={uploading} />
+                        {uploading ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                      </label>
+                    </div>
+
+                    <div className="space-y-4">
+                      <AnimatePresence mode="popLayout">
+                        {editingProduct.images.map((img, idx) => (
+                          <motion.div layout key={img.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 group">
+                            <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 aspect-square"><img src={img.url} className="w-full h-full object-cover" /></div>
+                            <div className="flex-grow">
+                              <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Imagen {idx === 0 ? 'Principal' : idx + 1}</span>
+                              <p className="text-[10px] text-gray-400 truncate max-w-[150px]">{img.url}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button type="button" onClick={() => moveImage(idx, 'up')} disabled={idx === 0} className="p-2 text-gray-500 hover:text-white disabled:opacity-20"><ChevronUp size={18} /></button>
+                              <button type="button" onClick={() => moveImage(idx, 'down')} disabled={idx === editingProduct.images.length - 1} className="p-2 text-gray-500 hover:text-white disabled:opacity-20"><ChevronDown size={18} /></button>
+                              <button type="button" onClick={() => setEditingProduct({ ...editingProduct, images: editingProduct.images.filter(i => i.id !== img.id) })} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                      {editingProduct.images.length === 0 && (
+                        <div className="py-20 text-center border-2 border-dashed border-white/10 rounded-3xl opacity-30">
+                          <ImageIcon size={48} className="mx-auto mb-4" />
+                          <p className="text-xs uppercase font-black tracking-[0.3em]">Sin imágenes vinculadas</p>
                         </div>
-                      </div>
-                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Descripción Técnica</label><textarea value={editingProduct.description} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 h-44 outline-none resize-none" required /></div>
-                      <div className="flex items-center gap-4 bg-white/5 p-6 rounded-2xl border border-white/5">
-                        <input type="checkbox" checked={editingProduct.isFeatured} onChange={e => setEditingProduct({...editingProduct, isFeatured: e.target.checked})} className="w-6 h-6 accent-[#FFD700] cursor-pointer" id="isFeatured" />
-                        <label htmlFor="isFeatured" className="font-bold text-gray-300 uppercase text-xs tracking-widest cursor-pointer">Destacar en Portada</label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-8">
-                      <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Galería de Imágenes (Arrastra para reordenar próximamente)</label>
-                        <label className={`cursor-pointer bg-[#FFD700] text-black p-3 rounded-xl hover:bg-white transition-all ${uploading ? 'opacity-50' : ''}`}>
-                          <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" disabled={uploading} />
-                          {uploading ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
-                        </label>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <AnimatePresence mode="popLayout">
-                          {editingProduct.images.map((img, idx) => (
-                            <motion.div layout key={img.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9 }} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 group">
-                              <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 aspect-square"><img src={img.url} className="w-full h-full object-cover" /></div>
-                              <div className="flex-grow">
-                                <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Imagen {idx === 0 ? 'Principal' : idx + 1}</span>
-                                <p className="text-[10px] text-gray-400 truncate max-w-[150px]">{img.url}</p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <button type="button" onClick={() => moveImage(idx, 'up')} disabled={idx === 0} className="p-2 text-gray-500 hover:text-white disabled:opacity-20"><ChevronUp size={18} /></button>
-                                <button type="button" onClick={() => moveImage(idx, 'down')} disabled={idx === editingProduct.images.length - 1} className="p-2 text-gray-500 hover:text-white disabled:opacity-20"><ChevronDown size={18} /></button>
-                                <button type="button" onClick={() => setEditingProduct({...editingProduct, images: editingProduct.images.filter(i => i.id !== img.id)})} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 size={18} /></button>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                        {editingProduct.images.length === 0 && (
-                          <div className="py-20 text-center border-2 border-dashed border-white/10 rounded-3xl opacity-30">
-                            <ImageIcon size={48} className="mx-auto mb-4" />
-                            <p className="text-xs uppercase font-black tracking-[0.3em]">Sin imágenes vinculadas</p>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex gap-4 pt-10 border-t border-white/5">
-                    <button type="submit" className="flex-grow bg-[#FFD700] text-black font-black py-6 rounded-2xl shadow-[0_20px_40px_rgba(255,215,0,0.15)] uppercase tracking-widest hover:bg-white transition-all">GUARDAR CAMBIOS</button>
-                    <button type="button" onClick={() => setEditingProduct(null)} className="px-12 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl transition-all uppercase text-xs">CANCELAR</button>
-                  </div>
-                </form>
-             </motion.div>
-           </div>
+                <div className="flex gap-4 pt-10 border-t border-white/5">
+                  <button type="submit" className="flex-grow bg-[#FFD700] text-black font-black py-6 rounded-2xl shadow-[0_20px_40px_rgba(255,215,0,0.15)] uppercase tracking-widest hover:bg-white transition-all">GUARDAR CAMBIOS</button>
+                  <button type="button" onClick={() => setEditingProduct(null)} className="px-12 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl transition-all uppercase text-xs">CANCELAR</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -795,7 +863,7 @@ const AdminDashboard = ({ products, categories, onUpdate, onLogout }: any) => {
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-[#0d0d0d] border border-white/10 p-10 rounded-[3rem] w-full max-w-md relative shadow-2xl">
               <h2 className="text-3xl font-black mb-10 uppercase flex items-center gap-4">Categoría</h2>
               <form onSubmit={handleSaveCategory} className="space-y-8">
-                <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Nombre</label><input value={editingCategory.name} onChange={e => setEditingCategory({...editingCategory, name: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold uppercase" required /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-2">Nombre</label><input value={editingCategory.name} onChange={e => setEditingCategory({ ...editingCategory, name: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-2xl p-5 outline-none font-bold uppercase" required /></div>
                 <div className="flex gap-4">
                   <button type="submit" className="flex-grow bg-[#FFD700] text-black font-black py-5 rounded-2xl uppercase tracking-widest">GUARDAR</button>
                   <button type="button" onClick={() => setEditingCategory(null)} className="px-8 bg-white/5 rounded-2xl uppercase text-[10px] font-black">SALIR</button>
@@ -841,15 +909,15 @@ const AdminLogin = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-black/60 border border-white/5 rounded-2xl p-5 outline-none focus:border-[#FFD700]/30 transition-all font-bold placeholder:text-gray-700 text-sm" placeholder="ADMIN EMAIL" required />
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-black/60 border border-white/5 rounded-2xl p-5 outline-none focus:border-[#FFD700]/30 transition-all font-bold placeholder:text-gray-700 text-sm" placeholder="PASSWORD" required />
             {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-[10px] font-bold uppercase">{error}</motion.p>}
-            <motion.button 
+            <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-              disabled={loading} 
+              disabled={loading}
               className="w-full bg-[#FFD700] text-black font-black p-5 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#DAA520] disabled:opacity-50 uppercase text-xs tracking-widest transition-all"
             >
               {loading ? <Loader2 className="animate-spin" size={18} /> : 'INICIAR ENLACE'}
             </motion.button>
           </form>
-          <button onClick={() => { play('click'); window.location.href='/'; }} className="mt-10 text-[9px] font-black tracking-widest text-gray-700 hover:text-white uppercase transition-colors">Volver al terminal público</button>
+          <button onClick={() => { play('click'); window.location.href = '/'; }} className="mt-10 text-[9px] font-black tracking-widest text-gray-700 hover:text-white uppercase transition-colors">Volver al terminal público</button>
         </div>
       </motion.div>
     </div>
