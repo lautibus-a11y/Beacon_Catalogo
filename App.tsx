@@ -281,22 +281,35 @@ export default function App() {
   const [showCart, setShowCart] = useState(false);
   const [session, setSession] = useState<any>(null);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
-    fetchData();
-    return () => subscription.unsubscribe();
-  }, []);
-
   const fetchData = async () => {
     setLoading(true);
     try {
       const [p, c] = await Promise.all([DB.getProducts(), DB.getCategories()]);
       setProducts(p);
       setCategories(c);
-    } catch (e) { console.error(e); }
-    setTimeout(() => setLoading(false), 800);
+    } catch (e) {
+      console.error('Error fetching data:', e);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    fetchData();
+
+    // Realtime Subscription
+    const channel = supabase.channel('schema-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => fetchData())
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const filteredProducts = useMemo(() => products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -437,7 +450,7 @@ export default function App() {
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : (
-          <motion.div variants={staggerChildren} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-12">
+          <motion.div variants={staggerChildren} initial="initial" animate="animate" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-12">
             <AnimatePresence mode="popLayout">
               {filteredProducts.map(p => (
                 <motion.div key={p.id} variants={fadeInUp} layout className="bg-white/5 border border-white/5 rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative">
