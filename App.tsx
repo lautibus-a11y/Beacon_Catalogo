@@ -139,33 +139,40 @@ const SkeletonCard = () => (
   </div>
 );
 
-const ParticleBackground = () => (
-  <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-    {[...Array(20)].map((_, i) => (
-      <motion.div
-        key={i}
-        className="absolute bg-[#FFD700]/10 rounded-full"
-        style={{
-          width: (Math.random() * 3 + 1) + 'px',
-          height: (Math.random() * 3 + 1) + 'px',
-          left: Math.random() * 100 + '%',
-          top: Math.random() * 100 + '%',
-        }}
-        animate={{
-          y: [0, -200],
-          x: [0, (Math.random() - 0.5) * 100],
-          opacity: [0, 0.5, 0]
-        }}
-        transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "linear" }}
-      />
-    ))}
-  </div>
-);
+// --- Optimized Components ---
+const ParticleBackground = () => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const particleCount = isMobile ? 8 : 20; // Reduce particles on mobile
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {[...Array(particleCount)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-[#FFD700]/10 rounded-full"
+          style={{
+            width: (Math.random() * 3 + 1) + 'px',
+            height: (Math.random() * 3 + 1) + 'px',
+            left: Math.random() * 100 + '%',
+            top: Math.random() * 100 + '%',
+            willChange: 'transform, opacity', // Hint to browser
+          }}
+          animate={{
+            y: [0, -200],
+            x: [0, (Math.random() - 0.5) * 100],
+            opacity: [0, 0.5, 0]
+          }}
+          transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "linear" }}
+        />
+      ))}
+    </div>
+  );
+};
 
 /**
  * ImageCarousel optimizado: Ratio de aspecto fijo inquebrantable
  */
-const ImageCarousel = ({ images, height = "h-full", showDots = true, enableSwipe = true }: { images: ProductImage[], height?: string, showDots?: boolean, enableSwipe?: boolean }) => {
+const ImageCarousel = ({ images, height = "h-full", showDots = true, enableSwipe = true, priority = false }: { images: ProductImage[], height?: string, showDots?: boolean, enableSwipe?: boolean, priority?: boolean }) => {
   const [index, setIndex] = useState(0);
   const sortedImages = useMemo(() => [...images].sort((a, b) => a.order - b.order), [images]);
 
@@ -188,10 +195,10 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true, enableSwipe
         <motion.img
           key={sortedImages[index].id}
           src={sortedImages[index].url}
-          initial={{ opacity: 0, x: 50, scale: 1.1 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: -50, scale: 1.1 }}
-          transition={{ duration: 0.4, ease: "circOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }} // Faster transition for mobile
           drag={enableSwipe ? "x" : false}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
@@ -202,7 +209,8 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true, enableSwipe
             else if (swipe > 100 || offset.x > 50) paginate(-1);
           }}
           className={`w-full h-full object-cover object-center absolute inset-0 ${enableSwipe ? 'cursor-grab active:cursor-grabbing' : ''}`}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
         />
       </AnimatePresence>
 
