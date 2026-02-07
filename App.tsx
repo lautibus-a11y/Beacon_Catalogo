@@ -165,9 +165,16 @@ const ParticleBackground = () => (
 /**
  * ImageCarousel optimizado: Ratio de aspecto fijo inquebrantable
  */
-const ImageCarousel = ({ images, height = "h-full", showDots = true }: { images: ProductImage[], height?: string, showDots?: boolean }) => {
+const ImageCarousel = ({ images, height = "h-full", showDots = true, enableSwipe = true }: { images: ProductImage[], height?: string, showDots?: boolean, enableSwipe?: boolean }) => {
   const [index, setIndex] = useState(0);
   const sortedImages = useMemo(() => [...images].sort((a, b) => a.order - b.order), [images]);
+
+  // Reset index when images change
+  useEffect(() => setIndex(0), [images]);
+
+  const paginate = (newDirection: number) => {
+    setIndex((prev) => (prev + newDirection + sortedImages.length) % sortedImages.length);
+  };
 
   if (sortedImages.length === 0) return (
     <div className={`${height} w-full bg-white/5 flex items-center justify-center text-gray-700 min-h-[200px]`}>
@@ -176,7 +183,7 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true }: { images:
   );
 
   return (
-    <div className={`relative ${height} w-full overflow-hidden group touch-pan-y`}>
+    <div className={`relative ${height} w-full overflow-hidden group`}>
       <AnimatePresence mode="wait">
         <motion.img
           key={sortedImages[index].id}
@@ -184,19 +191,28 @@ const ImageCarousel = ({ images, height = "h-full", showDots = true }: { images:
           initial={{ opacity: 0, x: 50, scale: 1.1 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, x: -50, scale: 1.1 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full h-full object-cover object-center absolute inset-0"
+          transition={{ duration: 0.4, ease: "circOut" }}
+          drag={enableSwipe ? "x" : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(e, { offset, velocity }) => {
+            if (!enableSwipe) return;
+            const swipe = Math.abs(offset.x) * velocity.x;
+            if (swipe < -100 || offset.x < -50) paginate(1);
+            else if (swipe > 100 || offset.x > 50) paginate(-1);
+          }}
+          className={`w-full h-full object-cover object-center absolute inset-0 ${enableSwipe ? 'cursor-grab active:cursor-grabbing' : ''}`}
           loading="lazy"
         />
       </AnimatePresence>
 
       {sortedImages.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); setIndex(prev => (prev - 1 + sortedImages.length) % sortedImages.length); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 backdrop-blur-md p-3 rounded-full opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-black/90 active:scale-90 hidden sm:block z-20"><ChevronLeft size={20} className="text-[#FFD700]" /></button>
-          <button onClick={(e) => { e.stopPropagation(); setIndex(prev => (prev + 1) % sortedImages.length); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 backdrop-blur-md p-3 rounded-full opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-black/90 active:scale-90 hidden sm:block z-20"><ChevronRight size={20} className="text-[#FFD700]" /></button>
+          <button onClick={(e) => { e.stopPropagation(); paginate(-1); }} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-md p-2 rounded-full opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-black/80 hidden sm:block z-20"><ChevronLeft size={18} className="text-[#FFD700]" /></button>
+          <button onClick={(e) => { e.stopPropagation(); paginate(1); }} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-md p-2 rounded-full opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-black/80 hidden sm:block z-20"><ChevronRight size={18} className="text-[#FFD700]" /></button>
           {showDots && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-              {sortedImages.map((_, i) => <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }} className={`h-1.5 rounded-full transition-all duration-500 ${i === index ? 'w-8 bg-[#FFD700] shadow-[0_0_10px_#FFD700]' : 'w-2 bg-white/20'}`} />)}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+              {sortedImages.map((_, i) => <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }} className={`h-1 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#FFD700] shadow-[0_0_8px_#FFD700]' : 'w-1.5 bg-white/30'}`} />)}
             </div>
           )}
         </>
@@ -213,7 +229,7 @@ const ProductDetailModal = ({ product, onClose, onAddToCart }: { product: Produc
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center sm:p-6"
     >
       <motion.div
         initial={{ opacity: 0 }}
@@ -223,42 +239,44 @@ const ProductDetailModal = ({ product, onClose, onAddToCart }: { product: Produc
         className="absolute inset-0 bg-black/95 backdrop-blur-xl"
       />
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 40 }}
+        initial={{ scale: 0.95, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 40 }}
-        className="bg-[#0a0a0a] border border-white/10 rounded-[3rem] w-full max-w-5xl overflow-hidden relative shadow-2xl flex flex-col lg:flex-row max-h-[90vh]"
+        exit={{ scale: 0.95, opacity: 0, y: 50 }}
+        className="bg-[#0a0a0a] border border-white/10 rounded-t-[2rem] sm:rounded-[3rem] w-full max-w-5xl overflow-hidden relative shadow-2xl flex flex-col lg:flex-row h-[85vh] sm:h-auto sm:max-h-[85vh]"
       >
         <button
           onClick={onClose}
-          className="absolute top-8 right-8 z-50 p-4 bg-black/60 backdrop-blur-md rounded-2xl text-white hover:text-[#FFD700] transition-colors border border-white/5"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 p-2 sm:p-3 bg-black/60 backdrop-blur-md rounded-full text-white hover:text-[#FFD700] transition-colors border border-white/10"
         >
-          <X size={24} />
+          <X size={20} />
         </button>
 
-        <div className="w-full lg:w-1/2 bg-black flex items-center justify-center relative aspect-[4/5] lg:aspect-auto">
+        <div className="w-full lg:w-5/12 bg-black flex items-center justify-center relative h-[40vh] sm:h-auto border-b sm:border-b-0 sm:border-r border-white/5">
           <ImageCarousel images={product.images} />
         </div>
 
-        <div className="w-full lg:w-1/2 p-8 sm:p-16 overflow-y-auto no-scrollbar flex flex-col justify-center">
-          <div className="mb-10">
-            <span className="text-[#FFD700] font-mono text-[10px] tracking-[0.5em] uppercase font-black mb-4 block">Product Specifications</span>
-            <h2 className="text-4xl sm:text-5xl font-black mb-6 uppercase tracking-tight">{product.name}</h2>
-            <div className="h-1 w-20 bg-[#FFD700] rounded-full mb-10" />
-            <p className="text-gray-400 text-lg leading-relaxed mb-10 font-medium">{product.description}</p>
+        <div className="w-full lg:w-7/12 p-5 sm:p-10 flex flex-col bg-[#0a0a0a] flex-grow min-h-0 relative">
+          <div className="flex-grow overflow-y-auto no-scrollbar space-y-4 sm:space-y-6 pb-20 sm:pb-0">
+            <div>
+              <span className="text-[#FFD700] font-mono text-[9px] sm:text-[10px] tracking-[0.3em] uppercase font-black mb-2 block">Spec Sheet</span>
+              <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight leading-none text-white">{product.name}</h2>
+            </div>
+            <div className="h-0.5 w-12 bg-[#FFD700] rounded-full opacity-50" />
+            <p className="text-gray-400 text-xs sm:text-base leading-relaxed font-medium">{product.description}</p>
           </div>
 
-          <div className="mt-auto pt-10 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-8">
+          <div className="absolute bottom-0 left-0 right-0 sm:static p-5 sm:p-0 bg-[#0a0a0a]/95 backdrop-blur-lg sm:bg-transparent border-t border-white/5 sm:border-0 pt-4 sm:pt-8 flex flex-row items-center justify-between gap-4">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Price Value</span>
-              <span className="text-5xl font-black text-white tracking-tighter">${product.price.toLocaleString()}</span>
+              <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-0.5">Total</span>
+              <span className="text-2xl sm:text-4xl font-black text-white tracking-tighter">${product.price.toLocaleString()}</span>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => { onAddToCart(product); onClose(); }}
-              className="bg-white text-black font-black px-12 py-6 rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-xs uppercase flex items-center justify-center gap-3"
+              className="bg-white text-black font-black px-8 sm:px-12 py-3 sm:py-5 rounded-xl sm:rounded-2xl hover:bg-[#FFD700] transition-all shadow-lg tracking-widest text-[10px] sm:text-xs uppercase flex items-center justify-center gap-2"
             >
-              ADQUIRIR AHORA <ShoppingBag size={20} />
+              ADQUIRIR <ShoppingBag size={16} />
             </motion.button>
           </div>
         </div>
@@ -317,7 +335,21 @@ export default function App() {
     return matchesSearch && matchesCategory;
   }), [products, searchTerm, selectedCategory]);
 
-  const featuredProduct = useMemo(() => products.find(p => p.isFeatured) || products[0], [products]);
+  const featuredProducts = useMemo(() => {
+    const active = products.filter(p => p.isFeatured);
+    return active.length > 0 ? active : products.slice(0, 3);
+  }, [products]);
+
+  const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
+
+  useEffect(() => {
+    if (featuredProducts.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentFeaturedIndex(prev => (prev + 1) % featuredProducts.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [featuredProducts]);
+
   const cartCount = cart.reduce((a, b) => a + b.quantity, 0);
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
@@ -461,25 +493,66 @@ export default function App() {
           </div>
         </motion.section>
 
-        {!selectedCategory && !searchTerm && featuredProduct && (
-          <motion.section initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12 sm:mb-32 group">
-            <div className="relative h-[350px] sm:h-[650px] w-full overflow-hidden rounded-[2rem] sm:rounded-[4rem] border border-white/5 shadow-2xl">
-              <ImageCarousel images={featuredProduct.images} />
-              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/95 via-black/30 to-transparent pointer-events-none z-10" />
-              <div className="absolute inset-0 p-6 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
-                <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-[#FFD700] font-mono text-[9px] sm:text-xs tracking-[0.6em] mb-2 sm:mb-8 flex items-center gap-4 uppercase font-black">
-                  <div className="w-8 sm:w-12 h-px bg-[#FFD700]"></div> NEW
-                </motion.span>
-                <h2 className="text-3xl sm:text-7xl md:text-8xl font-black mb-4 sm:mb-10 leading-none tracking-tighter uppercase">{featuredProduct.name}</h2>
-                <p className="hidden sm:block text-gray-400 text-xl mb-12 leading-relaxed font-medium line-clamp-3 max-w-xl">{featuredProduct.description}</p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  onClick={() => handleOpenProduct(featuredProduct)}
-                  className="w-full sm:w-fit pointer-events-auto bg-white text-black font-black px-6 sm:px-12 py-3 sm:py-5 rounded-xl sm:rounded-2xl hover:bg-[#FFD700] transition-all shadow-2xl tracking-widest text-[10px] sm:text-[11px] uppercase"
+        {!selectedCategory && !searchTerm && featuredProducts.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-8 sm:mb-32 group"
+          >
+            <div className="relative h-[480px] sm:h-[650px] w-full overflow-hidden rounded-[2rem] sm:rounded-[4rem] border border-white/5 shadow-2xl">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={featuredProducts[currentFeaturedIndex].id}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    const swipe = Math.abs(offset.x) * velocity.x;
+                    if (swipe < -100 || offset.x < -50) setCurrentFeaturedIndex(prev => (prev + 1) % featuredProducts.length);
+                    else if (swipe > 100 || offset.x > 50) setCurrentFeaturedIndex(prev => (prev - 1 + featuredProducts.length) % featuredProducts.length);
+                  }}
+                  initial={{ opacity: 0, scale: 1.1 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8, ease: "circOut" }}
+                  className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
                 >
-                  EXPLORAR <ArrowRight className="inline ml-2" size={14} />
-                </motion.button>
-              </div>
+                  <ImageCarousel images={featuredProducts[currentFeaturedIndex].images} showDots={false} enableSwipe={false} />
+                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/95 via-black/40 to-transparent pointer-events-none z-10" />
+                  <div className="absolute inset-0 p-6 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
+                    <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="text-[#FFD700] font-mono text-[9px] sm:text-xs tracking-[0.6em] mb-2 sm:mb-8 flex items-center gap-4 uppercase font-black">
+                      <div className="w-8 sm:w-12 h-px bg-[#FFD700]"></div> DESTACADOS
+                    </motion.span>
+                    <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-4xl sm:text-7xl md:text-8xl font-black mb-4 sm:mb-10 leading-none tracking-tighter uppercase text-shadow-glow">
+                      {featuredProducts[currentFeaturedIndex].name}
+                    </motion.h2>
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-gray-300 text-sm sm:text-xl mb-6 sm:mb-12 leading-relaxed font-medium line-clamp-3 max-w-xl">
+                      {featuredProducts[currentFeaturedIndex].description}
+                    </motion.p>
+                    <motion.button
+                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      onClick={() => handleOpenProduct(featuredProducts[currentFeaturedIndex])}
+                      className="w-full sm:w-fit pointer-events-auto bg-white text-black font-black px-6 sm:px-12 py-3 sm:py-5 rounded-xl sm:rounded-2xl hover:bg-[#FFD700] transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] tracking-widest text-[10px] sm:text-[11px] uppercase flex items-center justify-center gap-2"
+                    >
+                      EXPLORAR <ArrowRight className="inline ml-2" size={14} />
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {featuredProducts.length > 1 && (
+                <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 flex gap-1.5 z-30">
+                  {featuredProducts.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentFeaturedIndex(i)}
+                      className={`h-1.5 rounded-full transition-all duration-500 ${i === currentFeaturedIndex ? 'w-8 bg-[#FFD700] shadow-[0_0_10px_#FFD700]' : 'w-2 bg-white/20'}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </motion.section>
         )}
@@ -499,21 +572,27 @@ export default function App() {
           <motion.div variants={staggerChildren} initial="initial" animate="animate" className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-12">
             <AnimatePresence mode="popLayout">
               {filteredProducts.map(p => (
-                <motion.div key={p.id} variants={fadeInUp} layout className="bg-white/5 border border-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative">
+                <motion.div
+                  key={p.id}
+                  variants={fadeInUp}
+                  layout
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-white/5 border border-white/5 rounded-[1.2rem] sm:rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative"
+                >
                   <div className="relative cursor-pointer overflow-hidden aspect-[4/5] bg-black" onClick={() => handleOpenProduct(p)}>
                     <ImageCarousel images={p.images} showDots={false} />
                   </div>
-                  <div className="p-4 sm:p-8 flex flex-col flex-grow">
-                    <div className="flex-grow mb-3 sm:mb-6">
-                      <h3 className="font-black text-sm sm:text-2xl mb-1 sm:mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-1 uppercase tracking-tight">{p.name}</h3>
-                      <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium hidden sm:block">{p.description}</p>
+                  <div className="p-3 sm:p-8 flex flex-col flex-grow">
+                    <div className="flex-grow mb-2 sm:mb-6">
+                      <h3 className="font-black text-[11px] sm:text-2xl mb-1 sm:mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-2 uppercase tracking-tight leading-tight">{p.name}</h3>
+                      <p className="text-[9px] sm:text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium hidden sm:block">{p.description}</p>
                     </div>
                     <div className="flex items-center justify-between mt-auto gap-2">
-                      <span className="text-lg sm:text-3xl font-black text-white tracking-tighter text-shadow-glow-sm">${p.price.toLocaleString()}</span>
+                      <span className="text-sm sm:text-3xl font-black text-white tracking-tighter text-shadow-glow-sm">${p.price.toLocaleString()}</span>
                       <motion.button
-                        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.8 }}
                         onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
-                        className="bg-white text-black w-8 h-8 sm:w-14 sm:h-14 rounded-lg sm:rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl"
+                        className="bg-white text-black w-8 h-8 sm:w-14 sm:h-14 rounded-full sm:rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl min-w-[32px] min-h-[32px]"
                       >
                         <Plus size={16} className="sm:hidden" />
                         <Plus size={28} className="hidden sm:block" />
