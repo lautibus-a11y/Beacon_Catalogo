@@ -350,13 +350,26 @@ export default function App() {
 
   const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
 
+  // Optimized Banner Auto-Slide with Intersection Observer
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
+
   useEffect(() => {
-    if (featuredProducts.length <= 1) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsBannerVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    if (bannerRef.current) observer.observe(bannerRef.current);
+    return () => observer.disconnect();
+  }, [bannerRef.current]); // Added .current to detect mount
+
+  useEffect(() => {
+    if (featuredProducts.length <= 1 || !isBannerVisible) return;
     const interval = setInterval(() => {
       setCurrentFeaturedIndex(prev => (prev + 1) % featuredProducts.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, [featuredProducts]);
+  }, [featuredProducts, isBannerVisible]);
 
   const cartCount = cart.reduce((a, b) => a + b.quantity, 0);
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -383,7 +396,7 @@ export default function App() {
 
   const handleCheckout = () => {
     play('success');
-    const number = "1172023171";
+    const number = "541172023171";
     let message = "¡Hola! 👋\n";
     message += "Quisiera confirmar mi pedido:\n\n";
 
@@ -510,9 +523,10 @@ export default function App() {
 
         {!selectedCategory && !searchTerm && featuredProducts.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            ref={bannerRef}
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
             className="mb-8 sm:mb-32 group"
           >
             <div className="relative h-[480px] sm:h-[650px] w-full overflow-hidden rounded-[2rem] sm:rounded-[4rem] border border-white/5 shadow-2xl">
@@ -527,13 +541,13 @@ export default function App() {
                     if (swipe < -100 || offset.x < -50) setCurrentFeaturedIndex(prev => (prev + 1) % featuredProducts.length);
                     else if (swipe > 100 || offset.x > 50) setCurrentFeaturedIndex(prev => (prev - 1 + featuredProducts.length) % featuredProducts.length);
                   }}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8, ease: "circOut" }}
+                  transition={{ duration: 0.5 }}
                   className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
                 >
-                  <ImageCarousel images={featuredProducts[currentFeaturedIndex].images} showDots={false} enableSwipe={false} />
+                  <ImageCarousel images={featuredProducts[currentFeaturedIndex].images} showDots={false} enableSwipe={false} priority={true} />
                   <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/95 via-black/40 to-transparent pointer-events-none z-10" />
                   <div className="absolute inset-0 p-6 sm:p-20 flex flex-col justify-end sm:justify-center max-w-3xl pointer-events-none z-20">
                     <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="text-[#FFD700] font-mono text-[9px] sm:text-xs tracking-[0.6em] mb-2 sm:mb-8 flex items-center gap-4 uppercase font-black">
@@ -584,40 +598,39 @@ export default function App() {
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : (
-          <motion.div variants={staggerChildren} initial="initial" animate="animate" className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-12">
-            <AnimatePresence mode="popLayout">
-              {filteredProducts.map(p => (
-                <motion.div
-                  key={p.id}
-                  variants={fadeInUp}
-                  layout
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-white/5 border border-white/5 rounded-[1.2rem] sm:rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative"
-                >
-                  <div className="relative cursor-pointer overflow-hidden aspect-[4/5] bg-black" onClick={() => handleOpenProduct(p)}>
-                    <ImageCarousel images={p.images} showDots={false} />
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-12">
+            {filteredProducts.map(p => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "50px" }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white/5 border border-white/5 rounded-[1.2rem] sm:rounded-[2.5rem] overflow-hidden group hover:border-[#FFD700]/30 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all flex flex-col h-full backdrop-blur-sm relative will-change-transform"
+              >
+                <div className="relative cursor-pointer overflow-hidden aspect-[4/5] bg-black" onClick={() => handleOpenProduct(p)}>
+                  <ImageCarousel images={p.images} showDots={false} />
+                </div>
+                <div className="p-3 sm:p-8 flex flex-col flex-grow">
+                  <div className="flex-grow mb-2 sm:mb-6">
+                    <h3 className="font-black text-[11px] sm:text-2xl mb-1 sm:mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-2 uppercase tracking-tight leading-tight">{p.name}</h3>
+                    <p className="text-[9px] sm:text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium hidden sm:block">{p.description}</p>
                   </div>
-                  <div className="p-3 sm:p-8 flex flex-col flex-grow">
-                    <div className="flex-grow mb-2 sm:mb-6">
-                      <h3 className="font-black text-[11px] sm:text-2xl mb-1 sm:mb-2 group-hover:text-[#FFD700] transition-colors line-clamp-2 uppercase tracking-tight leading-tight">{p.name}</h3>
-                      <p className="text-[9px] sm:text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium hidden sm:block">{p.description}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-auto gap-2">
-                      <span className="text-sm sm:text-3xl font-black text-white tracking-tighter text-shadow-glow-sm">${p.price.toLocaleString()}</span>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.8 }}
-                        onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
-                        className="bg-white text-black w-8 h-8 sm:w-14 sm:h-14 rounded-full sm:rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl min-w-[32px] min-h-[32px]"
-                      >
-                        <Plus size={16} className="sm:hidden" />
-                        <Plus size={28} className="hidden sm:block" />
-                      </motion.button>
-                    </div>
+                  <div className="flex items-center justify-between mt-auto gap-2">
+                    <span className="text-sm sm:text-3xl font-black text-white tracking-tighter text-shadow-glow-sm">${p.price.toLocaleString()}</span>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.8 }}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(p); }}
+                      className="bg-white text-black w-8 h-8 sm:w-14 sm:h-14 rounded-full sm:rounded-2xl flex items-center justify-center hover:bg-[#FFD700] transition-all shadow-xl min-w-[32px] min-h-[32px]"
+                    >
+                      <Plus size={16} className="sm:hidden" />
+                      <Plus size={28} className="hidden sm:block" />
+                    </motion.button>
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
       </main>
 
