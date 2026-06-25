@@ -425,7 +425,7 @@ export default function App() {
           </div>
           <div className="flex flex-col">
             <span className="text-xl sm:text-2xl font-black tracking-widest text-[#FFD700]">BEA<span className="text-white">CON</span></span>
-            <span className="hidden sm:inline text-[8px] font-black tracking-[0.5em] text-gray-500 uppercase mt-1">Los mejores Gadgets</span>
+            <span className="hidden sm:inline text-[8px] font-black tracking-[0.5em] text-gray-500 uppercase mt-1">Productos geniales</span>
           </div>
         </motion.div>
 
